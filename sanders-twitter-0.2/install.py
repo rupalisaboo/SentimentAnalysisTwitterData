@@ -19,7 +19,7 @@
 # Excuse the ugly code.  I threw this together as quickly as possible and I
 # don't normally code in Python.
 #
-import csv, getpass, json, os, time
+import csv, getpass, json, os, time, sys
 import oauth2 as oauth
 import urllib2 as urllib
 
@@ -174,6 +174,7 @@ def download_tweets(fetch_list, raw_dir):
             fh.write(response.read())
 
         # stay in Twitter API rate limits
+        print item[2] + '.json' 
         print '    pausing %d sec to obey Twitter API rate limits' % (download_pause_sec)
         time.sleep( download_pause_sec )
     return
@@ -310,7 +311,7 @@ def parse_tweet(filename):
         raise RuntimeError('error parsing json')
 
     # look for twitter api error msgs
-    if 'error' in tweet_json:
+    if 'error' in tweet_json or 'errors' in tweet_json:
         raise RuntimeError('error in downloaded tweet')
     return tweet_json
 
@@ -384,6 +385,10 @@ def main():
     total_list = read_total_list(user_params['inList'])
     fetch_list = purge_already_fetched(total_list, user_params['rawDir'])
 
+    with open('fetch_list', 'w+') as fch:
+        for f in fetch_list:
+            fch.write(str(f)+'\n')
+    sys.exit(1)
     # start fetching data from twitter
     download_tweets(fetch_list, user_params['rawDir'])
 
@@ -394,13 +399,12 @@ def main():
     download_tweets(fetch_list, user_params['rawDir'])
 
     # build output corpus
-    build_output_corpus(user_params['outList'], user_params['rawDir'],
-                        total_list)
+    #build_output_corpus(user_params['outList'], user_params['rawDir'], total_list)
 
     return
 
 
 if __name__ == '__main__':
-    build_user_info()
-#   main()
+    #build_user_info()
+    main()
 #data = download_user_info('376287327')
