@@ -34,7 +34,7 @@ def main():
         raise RuntimeError('raw data dir %s not found' %friends_data_dir)
     valid_tweets_data = []
     # read input corpus file
-    with codecs.open(input_file, 'rb', encoding='utf-8') as input_fh:
+    with open(input_file, 'rb') as input_fh:
         csv_reader = csv.DictReader(input_fh, fieldnames=['company', 'sentiment', 'ID'])
         for row in csv_reader:
             data = {}
@@ -56,24 +56,35 @@ def main():
                 print 'skipping %s: %s.' %(tweet_id, exc)
                 continue
             valid_tweets_data.append(data)
-    with codecs.open(output_file, 'wb') as output_fh:
-        csv_writer = csv.DictWriter(output_fh, fieldnames=['company', 'sentiment', 'text', 'ID', 'friends_desc', 'user', 'date'], delimiter='\t')
+    with open(output_file, 'wb') as output_fh:
+        fields = ['company', 'sentiment', 'text', 'ID', 'friends_desc', 'user', 'date']
+        for data in valid_tweets_data:
+            row = [data[f] for f in fields]
+            try:
+                txt = u'\t'.join([unicode(r) for r in row]) + u'\n'
+                #print type(txt)
+                output_fh.write(txt.encode('utf8'))
+            except TypeError as exc:
+                #print row[4]
+                raise exc
+        """csv_writer = csv.DictWriter(output_fh, fieldnames=fields, delimiter='\t')
         csv_writer.writeheader()
         csv_writer.writerows(valid_tweets_data)
-        """csv_writer = csv.writer(output_fh, delimiter='\t')
+        csv_writer = csv.writer(output_fh, delimiter='\t')
         for data in valid_tweets_data:
-            csv_writer.writerow(map(encode_fn, data.values()))"""
+            txt = [unicode(data[r]) for r in fields]
+            csv_writer.writerow(txt)"""
 
 def encode_fn(to_encode):
     if not isinstance(to_encode, basestring):
         return to_encode
-    return to_encode.encode('utf-8')
+    return to_encode.encode('utf8')
 
 def parse_tweet(filename):
     # read tweet
     print
     'opening: ' + filename
-    fp = codecs.open(filename, 'rb', encoding='utf-8')
+    fp = open(filename, 'rb')
 
     # parse json
     try:
@@ -99,7 +110,7 @@ def get_friends_data(filename):
 
     friends_desc = []
     friends_data_json = []
-    with codecs.open(filename, 'rb',  encoding='utf-8') as friends_fh:
+    with open(filename, 'rb') as friends_fh:
         jumbled_string = friends_fh.read()
         substr = '[{"follow_request_sent"'
         prev_index = -1
@@ -116,12 +127,12 @@ def get_friends_data(filename):
                 break
             prev_index = ret_value # the [
     for block in friends_data_json:
-        friends = json.loads(block.encode('utf-8'))
+        friends = json.loads(block)
         for frnd in friends:
             if 'description' not in frnd:
                 continue
             friends_desc.append(frnd['description'].replace('\n', '').replace('\t', ''))
-    return u' ^|^ '.join(friends_desc).encode('utf-8')
+    return u' ^|^ '.join(friends_desc) #.encode('utf-8')
 
 if __name__ == '__main__':
     main()
