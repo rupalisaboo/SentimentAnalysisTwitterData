@@ -6,11 +6,14 @@ import re
 Method replaces emoticons from tweet with corresponding sentiment
 '''
 def removeEmoticons(tweets):
-    with open('resources/emoticons_sentiments.csv', "r") as emoFile:
+    emo_file = raw_input('Emoticons file [./resources/emoticons_sentiments.csv]: ')
+    if not emo_file:
+        emo_file = './resources/emoticons_sentiments.csv'
+    with open(emo_file.strip(), "r") as emoFile:
         rows = (line.split('2') for line in emoFile)
         for row in rows:
             cleanRow = re.escape(row[0].strip())
-            tweets = re.sub(cleanRow, row[1].replace('\n', '').strip(), tweets)
+            tweets = re.sub(cleanRow, '||' + row[1].replace('\n', '').strip() + '||', tweets)
     return tweets
 
 
@@ -50,15 +53,21 @@ def removeTargets(tweets):
 
 def main():
     #filename = 'resources/test_tweets.csv'
-    filename = 'data/full_corpus_20'
-    with open(filename, "r") as tweetFile:
+    #filename = 'data/full_corpus_20'
+    tweetFilename = raw_input('Tweet file [./resources/test_tweets.csv]: ')
+    outputFile = raw_input('Output file [./resources/test.csv]: ')
+    if not tweetFilename:
+        tweetFilename = './resources/test_tweets.csv'
+    if not outputFile:
+        outputFile = './resources/test.csv'
+    with open(tweetFilename.strip(), "r") as tweetFile:
         tweets = tweetFile.read().replace('\n', '|^^|')
         remLinks = removeWebLinks(tweets)
         remTargets = removeTargets(remLinks)
         replEmoticons = removeEmoticons(remTargets)
         cleanRepeatChar = removeRepeatChar(replEmoticons)
 
-    with open('resources/test', 'w') as test:
+    with open(outputFile.strip(), 'w') as test:
         test.write(cleanRepeatChar.replace('|^^|', '\n'))
 
 if __name__ == '__main__':
