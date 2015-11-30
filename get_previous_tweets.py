@@ -126,7 +126,7 @@ def download_tweets(tweet_id, tweet_time, label, tweet):
 
 
 def main():
-    input_file = 'resources/test_tweets_new.csv'
+    input_file = 'resources/tweets_new.csv' #'resources/test_tweets_new.csv'
     positive_label_count = 0
     negative_label_count = 0
     max_positive = 2500
@@ -135,16 +135,19 @@ def main():
     with open(input_file, 'r') as input_fh:
         rows = (line.split('","') for line in input_fh)
         for row in rows:
+            if (negative_label_count==max_negative) and (positive_label_count==max_positive):
+                break
             tweet_id = row[1].replace('"', '').strip()
             time = row[2].replace('"', '').strip()
             label = row[0].replace('"', '').strip()
             tweet = row[5].replace('"', '').strip()
             if label=='2':
                 continue
-            if (label=='0') & (negative_label_count==max_negative):
+            if (label=='0') and (negative_label_count==max_negative):
                 continue
-            if (label=='4') & (positive_label_count==max_positive):
+            if (label=='4') and (positive_label_count==max_positive):
                 continue
+
 
             count = download_tweets(tweet_id, time, label, tweet)
             if label=='0':
