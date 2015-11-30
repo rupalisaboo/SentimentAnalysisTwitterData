@@ -10,6 +10,8 @@ import os, csv, json, codecs
 import csv, getpass, json, os, time, sys
 import oauth2 as oauth
 import urllib2 as urllib
+import datetime
+import time
 
 api_key = "jNjhXYVfvuKenyWwbccTgkcjX"
 api_secret = "kO0YTvewzCDSf8YXFj2ICoee4HtZ7wkadES8zKdUgTpXaNbYmZ"
@@ -52,7 +54,12 @@ def twitterreq(url, method, parameters):
     return response
 
 
-def download_tweets(tweet_id, tweet_time):
+def download_tweets(tweet_id, tweet_time, label, tweet):
+    date1 = tweet_time.split()
+    date_view1_str = date1[0] + ' ' + date1[1] + ' ' + date1[2] + ' ' + date1[3]
+    date_view1_time = time.strftime('%Y-%m-%d %H:%M:%S', time.strptime(date_view1_str,'%a %b %d %H:%M:%S +0000 %Y'))
+    date_view1 = datetime.strptime(date_view1_time, '%Y-%m-%d %H:%M:%S')
+
     # stay within rate limits
     max_tweets_per_hr = 180
     download_pause_sec = 900 / max_tweets_per_hr
@@ -91,11 +98,20 @@ def download_tweets(tweet_id, tweet_time):
             time.sleep(download_pause_sec)
             return 0
         else:
-            print(response_last_tweet_json)
-            with open(raw_dir + tweet_id + '.json', 'w') as fh:
+            with open(raw_dir  + 'all_views.csv', 'a') as fh:
                 if (response_last_tweet_json):
                     if (response_last_tweet_json[1]):
-                        fh.write(response_last_tweet_json[1]['text'])
+                        date2 = response_last_tweet_json[1]['created_at']
+                        #get difference between dates here
+                        date_view2_str = date2[0] + ' ' + date2[1] + ' ' + date2[2] + ' ' + date2[3]
+                        date_view2_time = time.strftime('%Y-%m-%d %H:%M:%S', time.strptime(date_view2_str,'%a %b %d %H:%M:%S +0000 %Y'))
+                        date_view2 = datetime.strptime(date_view2_time, '%Y-%m-%d %H:%M:%S')
+                        diff = date_view1 - date_view2
+                        if (diff.seconds <= 3600):
+                            fh.write(label + '","' + tweet + '","' + response_last_tweet_json[1]['text']+'\n')
+                            return 1
+                        else:
+                            return 0
                 else:
                     print('Error in downloaded data, text missing')
                     print('pausing %d sec to obey Twitter API rate limits' % (download_pause_sec))
@@ -118,6 +134,7 @@ def main():
             tweet_id = row[1].replace('"', '').strip()
             time = row[2].replace('"', '').strip()
             label = row[0].replace('"', '').strip()
+            tweet = row[5].replace('"', '').strip()
             if label=='2':
                 continue
             if (label=='0') & (negative_label_count==max_negative):
@@ -125,7 +142,7 @@ def main():
             if (label=='4') & (positive_label_count==max_positive):
                 continue
 
-            count = download_tweets(tweet_id, time)
+            count = download_tweets(tweet_id, time, label, tweet)
             if label=='0':
                 negative_label_count += count
             elif label=='4':
