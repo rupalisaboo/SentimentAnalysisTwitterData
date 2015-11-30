@@ -132,7 +132,57 @@ def get_friends_data(filename):
             if 'description' not in frnd:
                 continue
             friends_desc.append(frnd['description'].replace('\n', '').replace('\t', ''))
-    return u' ^|^ '.join(friends_desc) #.encode('utf-8')
+    return u' ^|^ '.join(friends_desc) 
+
+def split_full_corpus():
+    full_corpus = raw_input('Full corpus csv file [./full_corpus.csv]: ')
+    corpus = raw_input('Corpus (without tweet text and friends text) csv file [./tweet_corpus.csv]: ')
+    tweet_text_filename = raw_input('Tweets Text corpus file[./tweet_text.csv]: ')
+    friends_data_filename = raw_input('Friends Text corpus file [./friends_text.csv]: ')
+
+
+    if not full_corpus:
+        full_corpus = './full_corpus.csv'
+    if not corpus:
+        corpus = './tweet_corpus.csv'
+    if not tweet_text_filename:
+        tweet_text_filename = './tweet_text.csv'
+    if not friends_data_filename:
+        friends_data_filename = './friends_text.csv'
+
+    # ensure full corpus exists
+    if not os.path.exists(full_corpus):
+        raise RuntimeError('Corpus %s not found' %full_corpus)
+    corpus_data = []
+    tweet_text_data = []
+    friends_text_data = []
+    with open(full_corpus, 'rb') as full_corpus_fh:
+        #fields = ['company', 'sentiment', 'text', 'ID', 'friends_desc', 'user', 'date']
+        for line in full_corpus_fh.readlines():
+            fields = line.decode('utf8').strip().split(u'\t')
+            #corpus
+            temp = [fields[i] for i in [3, 0, 1, 5, 6]]
+            corpus_data.append(u'\t'.join([unicode(r) for r in temp]) + u'\n')
+            #tweet text
+            temp = [fields[i] for i in [3, 2]]
+            tweet_text_data.append(u'\t'.join([unicode(r) for r in temp]) + u'\n')
+            #friends text
+            temp = [fields[i] for i in [3, 4]]
+            friends_text_data.append(u'\t'.join([unicode(r) for r in temp]) + u'\n')
+    #write files
+    write_file(corpus, corpus_data)
+    write_file(tweet_text_filename, tweet_text_data)
+    write_file(friends_data_filename, friends_text_data)
+
+def write_file(filename, lines):
+    with open(filename, 'wb') as file_fh:
+        for line in lines:
+            try:
+                file_fh.write(line.encode('utf8'))
+            except TypeError as exc:
+                #print row[4]
+                raise exc
 
 if __name__ == '__main__':
-    main()
+    #main()
+    split_full_corpus()

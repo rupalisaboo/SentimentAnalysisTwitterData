@@ -12,6 +12,7 @@ import oauth2 as oauth
 import urllib2 as urllib
 import datetime
 import time
+from dateutil import parser as date_parser
 
 api_key = "jNjhXYVfvuKenyWwbccTgkcjX"
 api_secret = "kO0YTvewzCDSf8YXFj2ICoee4HtZ7wkadES8zKdUgTpXaNbYmZ"
@@ -55,10 +56,10 @@ def twitterreq(url, method, parameters):
 
 
 def download_tweets(tweet_id, tweet_time, label, tweet):
-    date1 = tweet_time.split()
-    date_view1_str = date1[0] + ' ' + date1[1] + ' ' + date1[2] + ' ' + date1[3]
-    date_view1_time = time.strftime('%Y-%m-%d %H:%M:%S', time.strptime(date_view1_str,'%a %b %d %H:%M:%S +0000 %Y'))
-    date_view1 = datetime.strptime(date_view1_time, '%Y-%m-%d %H:%M:%S')
+    #date1 = tweet_time.split()
+    #date_view1_str = date1[0] + ' ' + date1[1] + ' ' + date1[2] + ' ' + date1[4]
+    #date_view1_time = time.strftime('%Y-%m-%d %H:%M:%S', time.strptime(tweet_time,'%a %b %d %H:%M:%S +0000 %Y'))#date_view1_str
+    date_view1 = date_parser.parse(tweet_time) #time.strptime(date_view1_time, '%Y-%m-%d %H:%M:%S')
 
     # stay within rate limits
     max_tweets_per_hr = 180
@@ -103,12 +104,12 @@ def download_tweets(tweet_id, tweet_time, label, tweet):
                     if (response_last_tweet_json[1]):
                         date2 = response_last_tweet_json[1]['created_at']
                         #get difference between dates here
-                        date_view2_str = date2[0] + ' ' + date2[1] + ' ' + date2[2] + ' ' + date2[3]
-                        date_view2_time = time.strftime('%Y-%m-%d %H:%M:%S', time.strptime(date_view2_str,'%a %b %d %H:%M:%S +0000 %Y'))
-                        date_view2 = datetime.strptime(date_view2_time, '%Y-%m-%d %H:%M:%S')
+                        #date_view2_str = date2[0] + ' ' + date2[1] + ' ' + date2[2] + ' ' + date2[3]
+                        #date_view2_time = time.strftime('%Y-%m-%d %H:%M:%S', time.strptime(date2,'%a %b %d %H:%M:%S +0000 %Y'))#date_view2_str
+                        date_view2 = date_parser.parse(date2) #time.strptime(date_view2_time, '%Y-%m-%d %H:%M:%S')
                         diff = date_view1 - date_view2
                         if (diff.seconds <= 3600):
-                            fh.write(label + '","' + tweet + '","' + response_last_tweet_json[1]['text']+'\n')
+                            fh.write(label + '","' + tweet + '","' + response_last_tweet_json[1]['text'] + '","' + str(diff.seconds) +'\n')
                             return 1
                         else:
                             return 0
@@ -129,7 +130,7 @@ def main():
     max_negative = 2500
     # read input corpus file
     with open(input_file, 'r') as input_fh:
-        rows = (line.split(',') for line in input_fh)
+        rows = (line.split('","') for line in input_fh)
         for row in rows:
             tweet_id = row[1].replace('"', '').strip()
             time = row[2].replace('"', '').strip()
