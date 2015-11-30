@@ -13,6 +13,9 @@ import urllib2 as urllib
 import datetime
 import time
 from dateutil import parser as date_parser
+import pytz
+
+utc = pytz.UTC
 
 api_key = "jNjhXYVfvuKenyWwbccTgkcjX"
 api_secret = "kO0YTvewzCDSf8YXFj2ICoee4HtZ7wkadES8zKdUgTpXaNbYmZ"
@@ -99,7 +102,7 @@ def download_tweets(tweet_id, tweet_time, label, tweet):
             time.sleep(download_pause_sec)
             return 0
         else:
-            with open(raw_dir  + 'all_views.csv', 'a') as fh:
+            with open('resources/'  + 'all_views.csv', 'a') as fh:
                 if (response_last_tweet_json):
                     if (response_last_tweet_json[1]):
                         date2 = response_last_tweet_json[1]['created_at']
@@ -107,7 +110,7 @@ def download_tweets(tweet_id, tweet_time, label, tweet):
                         #date_view2_str = date2[0] + ' ' + date2[1] + ' ' + date2[2] + ' ' + date2[3]
                         #date_view2_time = time.strftime('%Y-%m-%d %H:%M:%S', time.strptime(date2,'%a %b %d %H:%M:%S +0000 %Y'))#date_view2_str
                         date_view2 = date_parser.parse(date2) #time.strptime(date_view2_time, '%Y-%m-%d %H:%M:%S')
-                        diff = date_view1 - date_view2
+                        diff = date_view1.replace(tzinfo=utc) - date_view2.replace(tzinfo=utc) #utc.localize(date_view1) - utc.localize(date_view2)
                         if (diff.seconds <= 3600):
                             fh.write(label + '","' + tweet + '","' + response_last_tweet_json[1]['text'] + '","' + str(diff.seconds) +'\n')
                             return 1
