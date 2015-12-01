@@ -135,44 +135,47 @@ def get_friends_data(filename):
     return u' ^|^ '.join(friends_desc) 
 
 def split_full_corpus():
-    full_corpus = raw_input('Full corpus csv file [./full_corpus.csv]: ')
-    corpus = raw_input('Corpus (without tweet text and friends text) csv file [./tweet_corpus.csv]: ')
-    tweet_text_filename = raw_input('Tweets Text corpus file[./tweet_text.csv]: ')
-    friends_data_filename = raw_input('Friends Text corpus file [./friends_text.csv]: ')
+    full_corpus = raw_input('Full corpus csv file [./all_views.csv]: ')
+    #corpus = raw_input('Corpus (without tweet text and friends text) csv file [./tweet_corpus.csv]: ')
+    tweet_view1_filename = raw_input('Tweets Text corpus file[./tweet_view1.csv]: ') #view 1
+    tweet_view2_filename = raw_input('Friends Text corpus file [./tweet_view2.csv]: ') #view 2
 
 
     if not full_corpus:
-        full_corpus = './full_corpus.csv'
-    if not corpus:
-        corpus = './tweet_corpus.csv'
-    if not tweet_text_filename:
-        tweet_text_filename = './tweet_text.csv'
-    if not friends_data_filename:
-        friends_data_filename = './friends_text.csv'
+        full_corpus = './all_views.csv'
+    #if not corpus:
+    #    corpus = './tweet_corpus.csv'
+    if not tweet_view1_filename:
+        tweet_view1_filename = './tweet_view1.csv'
+    if not tweet_view2_filename:
+        tweet_view2_filename = './tweet_view2.csv'
 
     # ensure full corpus exists
     if not os.path.exists(full_corpus):
         raise RuntimeError('Corpus %s not found' %full_corpus)
-    corpus_data = []
-    tweet_text_data = []
-    friends_text_data = []
+    #corpus_data = []
+    tweet_view1_data = []
+    tweet_view2_data = []
     with open(full_corpus, 'rb') as full_corpus_fh:
-        #fields = ['company', 'sentiment', 'text', 'ID', 'friends_desc', 'user', 'date']
+        # Not applicable anymore - fields = ['company', 'sentiment', 'text', 'ID', 'friends_desc', 'user', 'date']
         for line in full_corpus_fh.readlines():
-            fields = line.decode('utf8').strip().split(u'\t')
+            fields = line.decode('utf8').split(u'","')
+            if len(fields) < 4:
+                continue
+            #print fields
             #corpus
-            temp = [fields[i] for i in [3, 0, 1, 5, 6]]
-            corpus_data.append(u'\t'.join([unicode(r) for r in temp]) + u'\n')
-            #tweet text
-            temp = [fields[i] for i in [3, 2]]
-            tweet_text_data.append(u'\t'.join([unicode(r) for r in temp]) + u'\n')
-            #friends text
-            temp = [fields[i] for i in [3, 4]]
-            friends_text_data.append(u'\t'.join([unicode(r) for r in temp]) + u'\n')
+            #temp = [fields[i] for i in [3, 0, 1, 5, 6]]
+            #corpus_data.append(u'\t'.join([unicode(r) for r in temp]) + u'\n')
+            #tweet 1 text
+            temp = [fields[i].strip().replace('"', '') for i in [0, 1]]
+            tweet_view1_data.append(u'\t'.join([unicode(r) for r in temp]) + u'\n')
+            #tweet 2 text
+            temp = [fields[i].strip().replace('"', '') for i in [0, 2]]
+            tweet_view2_data.append(u'\t'.join([unicode(r) for r in temp]) + u'\n')
     #write files
-    write_file(corpus, corpus_data)
-    write_file(tweet_text_filename, tweet_text_data)
-    write_file(friends_data_filename, friends_text_data)
+    #write_file(corpus, corpus_data)
+    write_file(tweet_view1_filename, tweet_view1_data)
+    write_file(tweet_view2_filename, tweet_view2_data)
 
 def write_file(filename, lines):
     with open(filename, 'wb') as file_fh:
