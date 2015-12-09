@@ -137,8 +137,8 @@ def get_friends_data(filename):
 def split_full_corpus():
     full_corpus = raw_input('Full corpus csv file [./all_views.csv]: ')
     #corpus = raw_input('Corpus (without tweet text and friends text) csv file [./tweet_corpus.csv]: ')
-    tweet_view1_filename = raw_input('Tweets Text corpus file[./view1]: ') #view 1
-    tweet_view2_filename = raw_input('Friends Text corpus file [./view2]: ') #view 2
+    tweet_view1_filename = raw_input('Tweets Text corpus file[./view1.csv]: ') #view 1
+    tweet_view2_filename = raw_input('Friends Text corpus file [./view2.csv]: ') #view 2
 
 
     if not full_corpus:
@@ -146,9 +146,9 @@ def split_full_corpus():
     #if not corpus:
     #    corpus = './tweet_corpus.csv'
     if not tweet_view1_filename:
-        tweet_view1_filename = './view1'
+        tweet_view1_filename = './view1.csv'
     if not tweet_view2_filename:
-        tweet_view2_filename = './view2'
+        tweet_view2_filename = './view2.csv'
 
     # ensure full corpus exists
     if not os.path.exists(full_corpus):

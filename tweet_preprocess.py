@@ -6,9 +6,9 @@ import re
 Method replaces emoticons from tweet with corresponding sentiment
 '''
 def removeEmoticons(tweets):
-    emo_file = raw_input('Emoticons file [./resources/emoticons_sentiments.csv]: ')
+    emo_file = raw_input('Emoticons file [../resources/emoticons_sentiments.csv]: ')
     if not emo_file:
-        emo_file = './resources/emoticons_sentiments.csv'
+        emo_file = '../resources/emoticons_sentiments.csv'
     with open(emo_file.strip(), "r") as emoFile:
         rows = (line.split('2') for line in emoFile)
         for row in rows:
@@ -54,21 +54,28 @@ def removeTargets(tweets):
 def main():
     #filename = 'resources/test_tweets.csv'
     #filename = 'data/full_corpus_20'
-    tweetFilename = raw_input('Tweet file [./resources/test_tweets.csv]: ')
-    outputFile = raw_input('Output file [./resources/test.csv]: ')
+    tweetFilename = raw_input('Tweet file [./view1]: ')
+    outputFile = raw_input('Output file [./view1_clean]: ')
     if not tweetFilename:
-        tweetFilename = './resources/test_tweets.csv'
+        tweetFilename = './view1'
     if not outputFile:
-        outputFile = './resources/test.csv'
+        outputFile = './view1_clean'
+    delim = ' ||^^^|| '
     with open(tweetFilename.strip(), "r") as tweetFile:
-        tweets = tweetFile.read().replace('\n', '|^^|')
-        remLinks = removeWebLinks(tweets)
-        remTargets = removeTargets(remLinks)
-        replEmoticons = removeEmoticons(remTargets)
-        cleanRepeatChar = removeRepeatChar(replEmoticons)
+        #tweets = tweetFile.read().replace('\n', '|^^|')
+        lines = tweetFile.readlines()
+    tweets = delim.join(lines).replace('\n', '')
+    remLinks = removeWebLinks(tweets)
+    remTargets = removeTargets(remLinks)
+    replEmoticons = removeEmoticons(remTargets)
+    cleanRepeatChar = removeRepeatChar(replEmoticons)
+    after = cleanRepeatChar.split(delim)
+    assert len(lines) == len(after), 'Before: %d, after: %d' %(len(lines), len(after))
 
     with open(outputFile.strip(), 'w') as test:
-        test.write(cleanRepeatChar.replace('|^^|', '\n'))
+        #test.write(cleanRepeatChar.replace(delim, '\n'))
+        for line in after:
+            test.write('%s\n' %line)
 
 if __name__ == '__main__':
     main()
