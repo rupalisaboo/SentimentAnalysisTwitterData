@@ -134,7 +134,7 @@ def get_friends_data(filename):
             friends_desc.append(frnd['description'].replace('\n', '').replace('\t', ''))
     return u' ^|^ '.join(friends_desc) 
 
-def split_full_corpus():
+def split_full_corpus(seconds = None):
     full_corpus = raw_input('Full corpus csv file [./all_views.csv]: ')
     #corpus = raw_input('Corpus (without tweet text and friends text) csv file [./tweet_corpus.csv]: ')
     tweet_view1_filename = raw_input('Tweets Text corpus file[./view1]: ') #view 1
@@ -167,6 +167,10 @@ def split_full_corpus():
             #temp = [fields[i] for i in [3, 0, 1, 5, 6]]
             #corpus_data.append(u'\t'.join([unicode(r) for r in temp]) + u'\n')
             #tweet 1 text
+            if seconds:
+                num_sec = int(fields[3].replace('"', ''))
+                if num_sec > seconds:
+                    continue
             temp = [fields[i].strip().replace('"', '') for i in [0, 1]]
             tweet_view1_data.append(u'\t'.join([unicode(r) for r in temp]) + u'\n')
             #tweet 2 text
@@ -188,4 +192,4 @@ def write_file(filename, lines):
 
 if __name__ == '__main__':
     #main()
-    split_full_corpus()
+    split_full_corpus(seconds=1000)
