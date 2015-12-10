@@ -1,0 +1,11 @@
+CCA - Rep Learning Project
+
+Download their test data, and test accuracy with theirs, and with our word2vec with/without CCA
+
+Add the test documents to the word2vec training, but use only the training documents for CCA, accuracy testing.
+
+Cross-validation samples to choose best word2vec models(like the current ‘test’ SentimentDocument docs)
+
+Twitter cleaning, don’t convert emoticons within text .. [emoticon] …. NOT xx[emoticon]yy
+
+How many CCA directions (cross-validation again?)
