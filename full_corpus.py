@@ -192,4 +192,4 @@ def write_file(filename, lines):
 
 if __name__ == '__main__':
     #main()
-    split_full_corpus(seconds=1000)
+    split_full_corpus() #(seconds=1000)
