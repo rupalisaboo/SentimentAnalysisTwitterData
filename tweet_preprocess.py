@@ -55,11 +55,11 @@ def main():
     #filename = 'resources/test_tweets.csv'
     #filename = 'data/full_corpus_20'
     tweetFilename = raw_input('Tweet file [./view1]: ')
-    outputFile = raw_input('Output file [./view1_clean]: ')
     if not tweetFilename:
         tweetFilename = './view1'
-    if not outputFile:
-        outputFile = './view1_clean'
+
+    outputFile = tweetFilename + '_clean'
+
     delim = ' ||^^^|| '
     with open(tweetFilename.strip(), "r") as tweetFile:
         #tweets = tweetFile.read().replace('\n', '|^^|')
